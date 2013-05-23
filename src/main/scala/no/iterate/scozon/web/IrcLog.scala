@@ -14,13 +14,16 @@ object IrcLog extends Plan {
 
   def intent = {
     case Path("/") =>
-      
-      val q = MongoDBObject("command" -> "PRIVMSG")
+      Redirect("/command/PRIVMSG")
+    
+    case Path(Seg(List("command", cmd))) =>
+      val q = MongoDBObject("command" -> cmd)
       val cursor = mongoDb("log").find(q).sort(MongoDBObject("time" -> -1)).limit(5)
       
       val trailings = cursor.flatMap { x => x.getAs[String]("trailing") }.toList.reverse
       
       Html(<ul>{ trailings map { t => <li>{t}</li>}}</ul>) 
+      
   }
   
 }
