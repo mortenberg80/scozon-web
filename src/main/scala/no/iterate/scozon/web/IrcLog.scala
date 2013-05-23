@@ -24,6 +24,15 @@ object IrcLog extends Plan {
       
       Html(<ul>{ trailings map { t => <li>{t}</li>}}</ul>) 
       
+    case Path(Seg(List("channel", channel))) =>
+      val ch = "#" + channel
+      val q = MongoDBObject("command" -> "PRIVMSG", "params" -> ch)
+      val cursor = mongoDb("log").find(q).sort(MongoDBObject("time" -> -1)).limit(5)
+      
+      val trailings = cursor.flatMap { x => x.getAs[String]("trailing") }.toList.reverse
+      
+      Html(<ul>{ trailings map { t => <li>{t}</li>}}</ul>) 
+      
   }
   
 }
